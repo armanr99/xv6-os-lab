@@ -15,7 +15,7 @@
 #include "proc.h"
 #include "x86.h"
 
-static void consputc(int);
+static void consputc(int, int);
 
 static int panicked = 0;
 
@@ -46,7 +46,7 @@ printint(int xx, int base, int sign)
     buf[i++] = '-';
 
   while(--i >= 0)
-    consputc(buf[i]);
+    consputc(buf[i], 0);
 }
 //PAGEBREAK: 50
 
@@ -68,7 +68,7 @@ cprintf(char *fmt, ...)
   argp = (uint*)(void*)(&fmt + 1);
   for(i = 0; (c = fmt[i] & 0xff) != 0; i++){
     if(c != '%'){
-      consputc(c);
+      consputc(c, 0);
       continue;
     }
     c = fmt[++i] & 0xff;
@@ -86,15 +86,15 @@ cprintf(char *fmt, ...)
       if((s = (char*)*argp++) == 0)
         s = "(null)";
       for(; *s; s++)
-        consputc(*s);
+        consputc(*s, 0);
       break;
     case '%':
-      consputc('%');
+      consputc('%', 0);
       break;
     default:
       // Print unknown % sequence to draw attention.
-      consputc('%');
-      consputc(c);
+      consputc('%', 0);
+      consputc(c, 0);
       break;
     }
   }
@@ -163,7 +163,7 @@ cgaputc(int c)
 }
 
 void
-consputc(int c)
+consputc(int c, int pr)
 {
   if(panicked){
     cli();
@@ -184,9 +184,16 @@ struct {
   uint r;  // Read index
   uint w;  // Write index
   uint e;  // Edit index
+  uint ei; // Last Char in buf index
 } input;
 
 #define C(x)  ((x)-'@')  // Control-x
+
+void
+myprintint(int xx)
+{
+  printint(xx, 10, 0);
+}
 
 void
 consoleintr(int (*getc)(void))
@@ -196,6 +203,14 @@ consoleintr(int (*getc)(void))
   acquire(&cons.lock);
   while((c = getc()) >= 0){
     switch(c){
+    case '{':
+      // printint(input.e, 10, 0);
+      // printint(input.w, 10, 0);
+      // printint(input.r, 10, 0);
+      input.e = input.w;
+      break;
+    case '}':
+      break;
     case C('P'):  // Process listing.
       // procdump() locks cons.lock indirectly; invoke later
       doprocdump = 1;
@@ -205,21 +220,38 @@ consoleintr(int (*getc)(void))
       while(input.e != input.w &&
             input.buf[(input.e-1) % INPUT_BUF] != '\n'){
         input.e--;
-        consputc(BACKSPACE);
+        input.ei--;
+        consputc(BACKSPACE, 0);
       }
       break;
     case C('H'): case '\x7f':  // Backspace
       if(input.e != input.w){
         input.e--;
-        consputc(BACKSPACE);
+        input.ei--;
+        consputc(BACKSPACE, 0);
       }
       break;
     default:
       if(c != 0 && input.e-input.r < INPUT_BUF){
         c = (c == '\r') ? '\n' : c;
-        input.buf[input.e++ % INPUT_BUF] = c;
-        consputc(c);
-        if(c == '\n' || c == C('D') || input.e == input.r+INPUT_BUF){
+        if(input.e != input.ei){
+          uint i;
+          for(i = input.ei; i > input.e; i--){
+            input.buf[i % INPUT_BUF] = input.buf[(i-1) % INPUT_BUF];
+            consputc(BACKSPACE, 1);
+          }
+          input.buf[input.e++ % INPUT_BUF] = c;
+          input.ei++;
+          for(i = input.e - 1; i < input.ei; i++)
+            consputc(input.buf[i % INPUT_BUF], 0);
+        }
+        else{
+          input.buf[input.e++ % INPUT_BUF] = c;
+          input.ei++;
+          consputc(c, 0);
+        }
+        if(c == '\n' || c == C('D') || input.ei == input.r+INPUT_BUF){
+          input.e = input.ei;
           input.w = input.e;
           wakeup(&input.r);
         }
@@ -279,7 +311,7 @@ consolewrite(struct inode *ip, char *buf, int n)
   iunlock(ip);
   acquire(&cons.lock);
   for(i = 0; i < n; i++)
-    consputc(buf[i] & 0xff);
+    consputc(buf[i] & 0xff, 0);
   release(&cons.lock);
   ilock(ip);
 
