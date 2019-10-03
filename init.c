@@ -31,6 +31,8 @@ main(void)
       printf(1, "init: exec sh failed\n");
       exit();
     }
+    printf(1, "Arman Rostami, Parsa Ghorbani\n");
+    
     while((wpid=wait()) >= 0 && wpid != pid)
       printf(1, "zombie!\n");
   }
