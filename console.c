@@ -184,9 +184,16 @@ struct {
   uint r;  // Read index
   uint w;  // Write index
   uint e;  // Edit index
+  uint ei; // Last Char in buf index
 } input;
 
 #define C(x)  ((x)-'@')  // Control-x
+
+void
+myprintint(int xx)
+{
+  printint(xx, 10, 0);
+}
 
 void
 consoleintr(int (*getc)(void))
@@ -196,6 +203,11 @@ consoleintr(int (*getc)(void))
   acquire(&cons.lock);
   while((c = getc()) >= 0){
     switch(c){
+    case '{':
+      input.e = input.w;
+      break;
+    case '}':
+      break;
     case C('P'):  // Process listing.
       // procdump() locks cons.lock indirectly; invoke later
       doprocdump = 1;
@@ -205,23 +217,52 @@ consoleintr(int (*getc)(void))
       while(input.e != input.w &&
             input.buf[(input.e-1) % INPUT_BUF] != '\n'){
         input.e--;
+        input.ei--;
         consputc(BACKSPACE);
       }
       break;
-    case C('H'): case '\x7f':  // Backspace
+    case C('H'): case '\x7f':  // Backspac
       if(input.e != input.w){
+        int i;
+        if(input.e != input.ei){
+          for(i = input.e-1; i < input.ei; i++){
+            input.buf[i % INPUT_BUF] = input.buf[(i+1) % INPUT_BUF];
+            consputc(BACKSPACE);
+          }
+          consputc(' ');
+        }
         input.e--;
+        input.ei--;
         consputc(BACKSPACE);
+        for(i = input.e; i < input.ei; i++)
+          consputc(input.buf[i % INPUT_BUF]);
       }
       break;
     default:
       if(c != 0 && input.e-input.r < INPUT_BUF){
         c = (c == '\r') ? '\n' : c;
-        input.buf[input.e++ % INPUT_BUF] = c;
-        consputc(c);
-        if(c == '\n' || c == C('D') || input.e == input.r+INPUT_BUF){
+        if(c == '\n' || c == C('D') || input.ei == input.r+INPUT_BUF){
+          input.buf[input.ei++ % INPUT_BUF] = c;
+          input.e = input.ei;
           input.w = input.e;
           wakeup(&input.r);
+          break;
+        }
+        if(input.e != input.ei){
+          uint i;
+          for(i = input.ei; i > input.e; i--){
+            input.buf[i % INPUT_BUF] = input.buf[(i-1) % INPUT_BUF];
+            consputc(BACKSPACE);
+          }
+          input.buf[input.e++ % INPUT_BUF] = c;
+          input.ei++;
+          for(i = input.e - 1; i < input.ei; i++)
+            consputc(input.buf[i % INPUT_BUF]);
+        }
+        else{
+          input.buf[input.e++ % INPUT_BUF] = c;
+          input.ei++;
+          consputc(c);
         }
       }
       break;
