@@ -143,6 +143,8 @@ cgaputc(int c)
     pos += 80 - pos%80;
   else if(c == BACKSPACE){
     if(pos > 0) --pos;
+  } else if (c == '{'){
+  } else if (c == '}'){
   } else
     crt[pos++] = (c&0xff) | 0x0700;  // black on white
 
@@ -205,8 +207,10 @@ consoleintr(int (*getc)(void))
     switch(c){
     case '{':
       input.e = input.w;
+     // consputc('{'); consputc(BACKSPACE);
       break;
     case '}':
+      input.e = input.ei;
       break;
     case C('P'):  // Process listing.
       // procdump() locks cons.lock indirectly; invoke later
@@ -214,8 +218,8 @@ consoleintr(int (*getc)(void))
       break;
     case C('C'):
     case C('U'):  // Kill line.
-      while(input.e != input.w &&
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
+      while(input.ei != input.w &&
+            input.buf[(input.ei-1) % INPUT_BUF] != '\n'){
         input.e--;
         input.ei--;
         consputc(BACKSPACE);
@@ -243,6 +247,7 @@ consoleintr(int (*getc)(void))
         c = (c == '\r') ? '\n' : c;
         if(c == '\n' || c == C('D') || input.ei == input.r+INPUT_BUF){
           input.buf[input.ei++ % INPUT_BUF] = c;
+          consputc(c);
           input.e = input.ei;
           input.w = input.e;
           wakeup(&input.r);
