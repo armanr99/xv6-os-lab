@@ -226,7 +226,8 @@ consoleintr(int (*getc)(void))
     case C('U'):  // Kill line.
       while(input.ei != input.w &&
             input.buf[(input.ei-1) % INPUT_BUF] != '\n'){
-        input.e--;
+        if(input.e != input.w)
+          input.e--;
         input.ei--;
         consputc(BACKSPACE, 1);
       }
