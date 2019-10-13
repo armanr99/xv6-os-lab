@@ -32,6 +32,16 @@ main(void)
       printf(1, "init: exec sh failed\n");
       exit();
     }
+    char* name = " _____________________________________\n\
+< By Arman Rostami and Parsa Ghorbani > \n\
+ -------------------------------------\n\
+        \\   ^__^\n\
+         \\  (oo)\\_______\n\
+            (__)\\       )\\/\\ \n\
+                ||----w |\n\
+                ||     ||\n";
+    printf(1, name);
+    
     while((wpid=wait()) >= 0 && wpid != pid)
       printf(1, "zombie!\n");
   }
