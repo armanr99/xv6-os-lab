@@ -3,89 +3,44 @@
 #include "user.h"
 #include "fcntl.h"
 
-#define LINE_MODE 1 
-#define BUF_SIZE 512
+#define BUF_MAX 10
 
-char buf[BUF_SIZE];
-
-void transferFd(int inFd, int outFd, int mode)
+void handleSingle(char* outFileName)
 {
-  int n;
+  // char* buf;
 
-  while((n = read(inFd, buf, sizeof(buf))) > 0) 
-  {
-    if(write(outFd, buf, n) != n)
-    {
-      printf(1, "cpt: write error\n");
-      exit();
-    }
+  // int i = 0; //TODO: cleanup
+  // for(;;)
+  // {
+  //   char c;
+  //   read(0, &c, 1);
+  //   buf = (char*) realloc (char)
+  //   buf[i] = c;
+  // }
+  // char buf[BUF_MAX];
 
-    if(n < 0)
-    {
-      printf(1, "cpt: read error\n");
-      exit();
-    }
+  // read(0, buf, sizeof buf);
 
-    if(mode == LINE_MODE && buf[n - 1] == '\n')
-      return;
-  }
+  // printf(1, "%s", buf);
 }
 
-void cptOne(char* outFile)
+void handleDouble(char* inFileName, char* outFileName)
 {
-  int outFd = open(outFile, O_CREATE | O_WRONLY);
+  int inFile = open(inFileName, O_RDONLY);
+  if(inFile < 0)
+    printf(1, "Error: Input file was not found\n");
 
-  if(outFd < 0)
-  {
-    printf(1, "cpt: error in opening or creating output file\n");
-    exit();
-  }
-
-  transferFd(0, outFd, LINE_MODE);
-  close(outFd);
+  // int outFile = open(outFileName, O_CREATE | O_WRONLY);
 }
 
-void cptTwo(char* inFile, char* outFile)
+int main(int argc, char* argv[])
 {
-  int inFd = open(inFile, 0);
-  int outFd = open(outFile, O_CREATE | O_WRONLY);
-
-  if(inFd < 0)
-  {
-    printf(1, "cpt: error in opening input file\n");
-    exit();
-  }
-  else if(outFd < 0)
-  {
-    printf(1, "cpt: error in opening or creating output file\n");
-    exit();
-  }
-
-  transferFd(inFd, outFd, 0);
-  close(inFd);
-  close(outFd);
-}
-
-int main(int argc, char *argv[])
-{
-  if(argc <= 1)
-  {
-    printf(1, "cpt: too few arguments\n");
-    exit();
-  }
-  else if(argc == 2)
-  {
-    cptOne(argv[1]);
-    exit();
-  }
+  if(argc == 2)
+    handleSingle(argv[1]);
   else if(argc == 3)
-  {
-    cptTwo(argv[1], argv[2]);
-    exit();
-  }
+    handleDouble(argv[1], argv[2]);
   else
-  {
-    printf(1, "cpt: too many arguments\n");
-    exit();
-  }
+    printf(1, "Error: Too many or few arguments detected\n");
+
+  exit();
 }
