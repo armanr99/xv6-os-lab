@@ -15,7 +15,7 @@
 #include "proc.h"
 #include "x86.h"
 
-static void consputc(int);
+static void consputc(int, int);
 
 static int panicked = 0;
 
@@ -46,7 +46,7 @@ printint(int xx, int base, int sign)
     buf[i++] = '-';
 
   while(--i >= 0)
-    consputc(buf[i]);
+    consputc(buf[i], 1);
 }
 //PAGEBREAK: 50
 
@@ -68,7 +68,7 @@ cprintf(char *fmt, ...)
   argp = (uint*)(void*)(&fmt + 1);
   for(i = 0; (c = fmt[i] & 0xff) != 0; i++){
     if(c != '%'){
-      consputc(c);
+      consputc(c, 1);
       continue;
     }
     c = fmt[++i] & 0xff;
@@ -86,15 +86,15 @@ cprintf(char *fmt, ...)
       if((s = (char*)*argp++) == 0)
         s = "(null)";
       for(; *s; s++)
-        consputc(*s);
+        consputc(*s, 1);
       break;
     case '%':
-      consputc('%');
+      consputc('%', 1);
       break;
     default:
       // Print unknown % sequence to draw attention.
-      consputc('%');
-      consputc(c);
+      consputc('%', 1);
+      consputc(c, 1);
       break;
     }
   }
@@ -129,7 +129,7 @@ panic(char *s)
 static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
 
 static void
-cgaputc(int c)
+cgaputc(int c, int cp)
 {
   int pos;
 
@@ -142,9 +142,17 @@ cgaputc(int c)
   if(c == '\n')
     pos += 80 - pos%80;
   else if(c == BACKSPACE){
-    if(pos > 0) --pos;
-  } else
-    crt[pos++] = (c&0xff) | 0x0700;  // black on white
+    if(pos > 0 && cp == 1) --pos;
+  } else if (c == '{'){
+    pos -= pos % 80;
+    pos += 5;
+    crt[pos] = (c&0xff) | 0x0700;  // black on white !!
+    pos += cp;
+  } else if (c == '}'){
+  } else {
+    crt[pos] = (c&0xff) | 0x0700;  // black on white
+    pos += cp;
+  }
 
   if(pos < 0 || pos > 25*80)
     panic("pos under/overflow");
@@ -163,7 +171,7 @@ cgaputc(int c)
 }
 
 void
-consputc(int c)
+consputc(int c, int cp)
 {
   if(panicked){
     cli();
@@ -175,7 +183,7 @@ consputc(int c)
     uartputc('\b'); uartputc(' '); uartputc('\b');
   } else
     uartputc(c);
-  cgaputc(c);
+  cgaputc(c, cp);
 }
 
 #define INPUT_BUF 128
@@ -184,9 +192,97 @@ struct {
   uint r;  // Read index
   uint w;  // Write index
   uint e;  // Edit index
+  uint ei; // Last Char in buf index
 } input;
 
 #define C(x)  ((x)-'@')  // Control-x
+
+void
+myprintint(int xx)
+{
+  printint(xx, 10, 0);
+}
+
+void crt_erase_char(int back_counter){
+  int pos;
+
+  // get cursor position
+  outb(CRTPORT, 14);                  
+  pos = inb(CRTPORT+1) << 8;
+  outb(CRTPORT, 15);
+  pos |= inb(CRTPORT+1);
+
+  for(int i = pos-1; i <= pos + back_counter; i++)
+    crt[i] = crt[i+1];
+
+  pos--;
+
+  outb(CRTPORT, 14);
+  outb(CRTPORT+1, pos>>8);
+  outb(CRTPORT, 15);
+  outb(CRTPORT+1, pos);
+  crt[pos+back_counter] = ' ' | 0x0700;
+}
+
+
+void crt_insert_char(int c, int back_counter){
+  int pos;
+
+  // get cursor position
+  outb(CRTPORT, 14);                  
+  pos = inb(CRTPORT+1) << 8;
+  outb(CRTPORT, 15);
+  pos |= inb(CRTPORT+1);
+
+  for(int i = pos + back_counter; i >= pos; i--){
+    crt[i+1] = crt[i];
+  }
+  crt[pos] = (c&0xff) | 0x0700;  
+
+  pos++;
+
+  outb(CRTPORT, 14);
+  outb(CRTPORT+1, pos>>8);
+  outb(CRTPORT, 15);
+  outb(CRTPORT+1, pos);
+  crt[pos+back_counter] = ' ' | 0x0700;
+}
+
+void move_back_cursor(int cnt){
+  int pos;
+  
+  // get cursor position
+  outb(CRTPORT, 14);                  
+  pos = inb(CRTPORT+1) << 8;
+  outb(CRTPORT, 15);
+  pos |= inb(CRTPORT+1);    
+
+  pos -= cnt;
+
+  outb(CRTPORT, 15);
+  outb(CRTPORT+1, (unsigned char)(pos&0xFF));
+  outb(CRTPORT, 14);
+  outb(CRTPORT+1, (unsigned char )((pos>>8)&0xFF));
+}
+
+void move_forward_cursor(int cnt){
+  int pos;
+  
+  // get cursor position
+  outb(CRTPORT, 14);                  
+  pos = inb(CRTPORT+1) << 8;
+  outb(CRTPORT, 15);
+  pos |= inb(CRTPORT+1);    
+
+  pos += cnt;
+
+  outb(CRTPORT, 15);
+  outb(CRTPORT+1, (unsigned char)(pos&0xFF));
+  outb(CRTPORT, 14);
+  outb(CRTPORT+1, (unsigned char )((pos>>8)&0xFF));
+}
+
+int back_counter = 0;
 
 void
 consoleintr(int (*getc)(void))
@@ -196,31 +292,66 @@ consoleintr(int (*getc)(void))
   acquire(&cons.lock);
   while((c = getc()) >= 0){
     switch(c){
+    case '{':
+      input.e = input.w;
+      consputc('{', 1); consputc(BACKSPACE, 1);
+      back_counter += (input.ei - input.e) + 1;
+      move_back_cursor(input.ei - input.e);
+      break;
+    case '}':
+      move_forward_cursor(input.ei - input.e);
+      input.e = input.ei;
+      back_counter = 0;
+      break;
     case C('P'):  // Process listing.
       // procdump() locks cons.lock indirectly; invoke later
       doprocdump = 1;
       break;
-    case C('U'):  // Kill line.
-      while(input.e != input.w &&
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
-        input.e--;
-        consputc(BACKSPACE);
+    case C('C'): case C('U'):  // Kill line.
+      move_forward_cursor(input.ei - input.e);
+      while(input.ei != input.w &&
+            input.buf[(input.ei-1) % INPUT_BUF] != '\n'){
+        if(input.e > input.w)
+          input.e--;
+        input.ei--;
+        consputc(BACKSPACE, 1);
       }
       break;
     case C('H'): case '\x7f':  // Backspace
       if(input.e != input.w){
+        int i;
+        if(input.e != input.ei){
+          for(i = input.e-1; i < input.ei; i++)
+            input.buf[i % INPUT_BUF] = input.buf[(i+1) % INPUT_BUF];
+        }
         input.e--;
-        consputc(BACKSPACE);
+        input.ei--;
+        crt_erase_char(back_counter);
       }
       break;
     default:
       if(c != 0 && input.e-input.r < INPUT_BUF){
         c = (c == '\r') ? '\n' : c;
-        input.buf[input.e++ % INPUT_BUF] = c;
-        consputc(c);
-        if(c == '\n' || c == C('D') || input.e == input.r+INPUT_BUF){
+        if(c == '\n' || c == C('D') || input.ei == input.r+INPUT_BUF){
+          input.buf[input.ei++ % INPUT_BUF] = c;
+          consputc(c, 1);
+          input.e = input.ei;
           input.w = input.e;
           wakeup(&input.r);
+          break;
+        }
+        if(input.e != input.ei){
+          uint i;
+          for(i = input.ei; i >= input.e; i--)
+            input.buf[i % INPUT_BUF] = input.buf[(i-1) % INPUT_BUF];
+          input.buf[input.e++ % INPUT_BUF] = c;
+          input.ei++;
+          crt_insert_char(c, back_counter);
+        }
+        else{
+          input.buf[input.e++ % INPUT_BUF] = c;
+          input.ei++;
+          crt_insert_char(c, back_counter);
         }
       }
       break;
@@ -278,7 +409,7 @@ consolewrite(struct inode *ip, char *buf, int n)
   iunlock(ip);
   acquire(&cons.lock);
   for(i = 0; i < n; i++)
-    consputc(buf[i] & 0xff);
+    consputc(buf[i] & 0xff, 1);
   release(&cons.lock);
   ilock(ip);
 
