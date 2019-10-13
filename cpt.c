@@ -33,6 +33,8 @@ void transferFd(int inFd, int outFd, int mode)
 
 void cptOne(char* outFile)
 {
+  unlink(outFile);
+  
   int outFd = open(outFile, O_CREATE | O_WRONLY);
 
   if(outFd < 0)
@@ -47,6 +49,8 @@ void cptOne(char* outFile)
 
 void cptTwo(char* inFile, char* outFile)
 {
+  unlink(outFile);
+
   int inFd = open(inFile, 0);
   int outFd = open(outFile, O_CREATE | O_WRONLY);
 
