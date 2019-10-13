@@ -145,7 +145,7 @@ cgaputc(int c, int cp)
     if(pos > 0 && cp == 1) --pos;
   } else if (c == '{'){
     pos -= pos % 80;
-    pos += 4;
+    pos += 5;
     crt[pos] = (c&0xff) | 0x0700;  // black on white !!
     pos += cp;
   } else if (c == '}'){
@@ -203,6 +203,87 @@ myprintint(int xx)
   printint(xx, 10, 0);
 }
 
+void crt_erase_char(int back_counter){
+  int pos;
+
+  // get cursor position
+  outb(CRTPORT, 14);                  
+  pos = inb(CRTPORT+1) << 8;
+  outb(CRTPORT, 15);
+  pos |= inb(CRTPORT+1);
+
+  for(int i = pos-1; i <= pos + back_counter; i++)
+    crt[i] = crt[i+1];
+
+  pos--;
+
+  outb(CRTPORT, 14);
+  outb(CRTPORT+1, pos>>8);
+  outb(CRTPORT, 15);
+  outb(CRTPORT+1, pos);
+  crt[pos+back_counter] = ' ' | 0x0700;
+}
+
+
+void crt_insert_char(int c, int back_counter){
+  int pos;
+
+  // get cursor position
+  outb(CRTPORT, 14);                  
+  pos = inb(CRTPORT+1) << 8;
+  outb(CRTPORT, 15);
+  pos |= inb(CRTPORT+1);
+
+  for(int i = pos + back_counter; i >= pos; i--){
+    crt[i+1] = crt[i];
+  }
+  crt[pos] = (c&0xff) | 0x0700;  
+
+  pos++;
+
+  outb(CRTPORT, 14);
+  outb(CRTPORT+1, pos>>8);
+  outb(CRTPORT, 15);
+  outb(CRTPORT+1, pos);
+  crt[pos+back_counter] = ' ' | 0x0700;
+}
+
+void move_back_cursor(int cnt){
+  int pos;
+  
+  // get cursor position
+  outb(CRTPORT, 14);                  
+  pos = inb(CRTPORT+1) << 8;
+  outb(CRTPORT, 15);
+  pos |= inb(CRTPORT+1);    
+
+  pos -= cnt;
+
+  outb(CRTPORT, 15);
+  outb(CRTPORT+1, (unsigned char)(pos&0xFF));
+  outb(CRTPORT, 14);
+  outb(CRTPORT+1, (unsigned char )((pos>>8)&0xFF));
+}
+
+void move_forward_cursor(int cnt){
+  int pos;
+  
+  // get cursor position
+  outb(CRTPORT, 14);                  
+  pos = inb(CRTPORT+1) << 8;
+  outb(CRTPORT, 15);
+  pos |= inb(CRTPORT+1);    
+
+  pos += cnt;
+
+  outb(CRTPORT, 15);
+  outb(CRTPORT+1, (unsigned char)(pos&0xFF));
+  outb(CRTPORT, 14);
+  outb(CRTPORT+1, (unsigned char )((pos>>8)&0xFF));
+}
+
+int back_counter = 0;
+
 void
 consoleintr(int (*getc)(void))
 {
@@ -214,18 +295,24 @@ consoleintr(int (*getc)(void))
     case '{':
       input.e = input.w;
       consputc('{', 1); consputc(BACKSPACE, 1);
+      back_counter += (input.ei - input.e) + 1;
+      move_back_cursor(input.ei - input.e);
       break;
     case '}':
+      move_forward_cursor(input.ei - input.e);
       input.e = input.ei;
+      back_counter = 0;
       break;
     case C('P'):  // Process listing.
       // procdump() locks cons.lock indirectly; invoke later
       doprocdump = 1;
       break;
     case C('C'): case C('U'):  // Kill line.
-      while(input.e != input.w &&
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
-        input.e--;
+      move_forward_cursor(input.ei - input.e);
+      while(input.ei != input.w &&
+            input.buf[(input.ei-1) % INPUT_BUF] != '\n'){
+        if(input.e > input.w)
+          input.e--;
         input.ei--;
         consputc(BACKSPACE, 1);
       }
@@ -234,18 +321,12 @@ consoleintr(int (*getc)(void))
       if(input.e != input.w){
         int i;
         if(input.e != input.ei){
-          for(i = input.e-1; i < input.ei; i++){
+          for(i = input.e-1; i < input.ei; i++)
             input.buf[i % INPUT_BUF] = input.buf[(i+1) % INPUT_BUF];
-            consputc(BACKSPACE, 1);
-          }
-          consputc(' ', 1);
         }
         input.e--;
         input.ei--;
-        consputc(BACKSPACE, 1);
-        consputc(input.buf[input.e % INPUT_BUF], 1);
-        for(i = input.e+1; i < input.ei; i++)
-          consputc(input.buf[i % INPUT_BUF], 0);
+        crt_erase_char(back_counter);
       }
       break;
     default:
@@ -261,23 +342,16 @@ consoleintr(int (*getc)(void))
         }
         if(input.e != input.ei){
           uint i;
-          for(i = input.ei; i > input.e; i--){
+          for(i = input.ei; i >= input.e; i--)
             input.buf[i % INPUT_BUF] = input.buf[(i-1) % INPUT_BUF];
-            consputc(BACKSPACE, 1);
-          }
           input.buf[input.e++ % INPUT_BUF] = c;
           input.ei++;
-          consputc(input.buf[(input.e-1) % INPUT_BUF], 1);
-          if(input.e != input.ei){
-            consputc(input.buf[input.e % INPUT_BUF], 1);
-          }
-          for(i = input.e+1; i < input.ei; i++)
-            consputc(input.buf[i % INPUT_BUF], 0);
+          crt_insert_char(c, back_counter);
         }
         else{
           input.buf[input.e++ % INPUT_BUF] = c;
           input.ei++;
-          consputc(c, 1);
+          crt_insert_char(c, back_counter);
         }
       }
       break;
