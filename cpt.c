@@ -31,8 +31,7 @@ void transferFd(int inFd, int outFd, int mode)
   }
 }
 
-void cptOne(char* outFile)
-{
+void cptOne(char* outFile){
   unlink(outFile);
   
   int outFd = open(outFile, O_CREATE | O_WRONLY);
@@ -47,8 +46,7 @@ void cptOne(char* outFile)
   close(outFd);
 }
 
-void cptTwo(char* inFile, char* outFile)
-{
+void cptTwo(char* inFile, char* outFile){
   unlink(outFile);
 
   int inFd = open(inFile, 0);
@@ -70,8 +68,7 @@ void cptTwo(char* inFile, char* outFile)
   close(outFd);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
   if(argc <= 1)
   {
     printf(1, "cpt: too few arguments\n");
