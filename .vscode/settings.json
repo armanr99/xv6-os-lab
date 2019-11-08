@@ -1,7 +1,6 @@
 {
     "files.associations": {
         "printf.h": "c",
-        "defs.h": "c",
-        "user.h": "c"
+        "date.h": "c"
     }
 }
