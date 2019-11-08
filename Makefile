@@ -183,6 +183,7 @@ UPROGS=\
 	_zombie\
 	_cpt\
 	_sysTest\
+	_set\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -257,6 +258,7 @@ EXTRA=\
 	.gdbinit.tmpl gdbutil\
 	cpt.c\
 	sysTest.c\
+	set.c\
 
 dist:
 	rm -rf dist

@@ -100,3 +100,26 @@ sys_count_num_of_digits(void)
   cprintf("increased number is : %d \n", num_of_digits);
   return 1;
 }
+
+int
+sys_set_path(void)
+{
+  char *new_path;
+  if (argstr(0, &new_path) < 0)
+    return -1;
+  int new_path_len = strlen(new_path);
+  int global_path_index = 0, new_dir_index = 0;
+  char new_directory[1000];
+  for (int i = 5; i < new_path_len; i++)
+    if (new_path[i] != ':')
+      new_directory[new_dir_index++] =  new_path[i];
+    else{
+      new_directory[new_dir_index] = '\0';
+      for (int i = 0; i < new_dir_index; i++)
+        globalPath[global_path_index][i] = new_directory[i];
+      cprintf("%c\n", new_directory);
+      new_dir_index = 0;
+      global_path_index++;
+    }
+  return 0;
+}
