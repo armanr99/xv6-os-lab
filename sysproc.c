@@ -89,3 +89,14 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int
+sys_count_num_of_digits(void)
+{
+  struct proc *curproc = myproc();
+  int num = curproc->tf->edx;
+  int num_of_digits = 0;
+  while(num > 0) num /= 10, num_of_digits++;
+  cprintf("increased number is : %d \n", num_of_digits);
+  return 1;
+}

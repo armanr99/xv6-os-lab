@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "printf.h": "c"
+        "printf.h": "c",
+        "defs.h": "c"
     }
 }
