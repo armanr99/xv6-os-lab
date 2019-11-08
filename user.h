@@ -28,10 +28,11 @@ int uptime(void);
 int set_path(char*);
 int get_parent_id(int);
 char* get_children(int);
+int set_sleep(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
-char* strcpy(char*, const char*);
+char* strcpy(char*, const char*);   
 void *memmove(void*, const void*, int);
 char* strchr(const char*, char c);
 int strcmp(const char*, const char*);

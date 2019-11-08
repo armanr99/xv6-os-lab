@@ -142,3 +142,15 @@ sys_get_children(void)
   get_children(pid);
   return 0;
 }
+
+int 
+sys_set_sleep(void)
+{
+  int n;
+
+  if(argint(0, &n) < 0)
+    return -1;
+
+  set_sleep(n);
+  return 0;
+}

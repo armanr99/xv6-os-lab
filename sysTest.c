@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
     printf(1, "0. count_num_of_digitst\n");
     printf(1, "1. test get parent id\n");
     printf(1, "2. test get childern\n");
+    printf(1, "3. test sleep\n");
     // printf(1, "0.enable/disable\n");
     // printf(1, "1.invoked_syscalls\n");
     // printf(1, "2.get_count\n");
@@ -74,6 +75,10 @@ int main(int argc, char *argv[])
         get_children(1);
         wait();
       }
+    }
+    else if (atoi(buf) == 3)
+    {
+      set_sleep(3);
     }
     exit();
 }

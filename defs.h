@@ -122,6 +122,7 @@ void            wakeup(void*);
 void            yield(void);
 int             get_parent_id(int);
 char*           get_children(int);
+int             set_sleep(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

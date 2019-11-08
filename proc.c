@@ -539,6 +539,19 @@ get_children(int pid)
   //return safestrcpy(ret, "", 100);
 }
 
+int 
+set_sleep(int n)
+{
+
+  uint ticks0;
+  ticks0 = ticks;
+
+  while(ticks - ticks0 < n * 100)
+      sti();
+  
+  return 0;
+}
+
 //PAGEBREAK: 36
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.
