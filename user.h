@@ -26,6 +26,8 @@ int uptime(void);
 
 //2
 int set_path(char*);
+int get_parent_id(int);
+char* get_children(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

@@ -103,3 +103,24 @@ strlen(const char *s)
   return n;
 }
 
+char* itoa(int n) {
+  char ret[100];
+  if (n == 0)
+    return "0";
+
+  int idx = 0;
+  while(n > 0){
+    ret[idx++] = (n % 10) + '0';
+    n /= 10;
+  }
+
+  for (int i = 0; i < idx / 2; i++)
+  {
+    char tmp = ret[i];
+    ret[i] = ret[idx - i - 1];
+    ret[idx - i - 1] = tmp;
+  }
+  
+  ret[idx] = '\0';
+  return safestrcpy("", ret, 100);
+}

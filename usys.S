@@ -31,3 +31,5 @@ SYSCALL(sleep)
 SYSCALL(uptime)
 
 SYSCALL(set_path)
+SYSCALL(get_parent_id)
+SYSCALL(get_children)

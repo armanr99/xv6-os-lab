@@ -417,7 +417,23 @@ sys_exec(void)
     if(fetchstr(uarg, &argv[i]) < 0)
       return -1;
   }
-  return exec(path, argv);
+  
+  int normal_exec_ret_val = exec(path, argv);
+  if(normal_exec_ret_val < 0)
+    for (int i = 0; i < len_global_path; i++){
+
+      char new_path[1000];
+      for (int j = 0; j < strlen(globalPath[i]); j++)
+        new_path[i] = globalPath[i][j];
+      for (int j = 0; j < strlen(path); j++)
+        new_path[strlen(globalPath[i]) + j] = path[j];
+      new_path[strlen(globalPath[i]) + strlen(path)] = '\0';
+
+      int sys_path_exec_ret_val = exec( new_path, argv );
+      if (sys_path_exec_ret_val >= 0)
+        return sys_path_exec_ret_val;
+    }
+  return normal_exec_ret_val;
 }
 
 int

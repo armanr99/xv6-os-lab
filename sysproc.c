@@ -110,16 +110,35 @@ sys_set_path(void)
   int new_path_len = strlen(new_path);
   int global_path_index = 0, new_dir_index = 0;
   char new_directory[1000];
-  for (int i = 5; i < new_path_len; i++)
+  for (int i = 0; i < new_path_len; i++)
     if (new_path[i] != ':')
       new_directory[new_dir_index++] =  new_path[i];
     else{
       new_directory[new_dir_index] = '\0';
-      for (int i = 0; i < new_dir_index; i++)
+      for (int i = 0; i <= new_dir_index; i++)
         globalPath[global_path_index][i] = new_directory[i];
-      cprintf("%c\n", new_directory);
       new_dir_index = 0;
       global_path_index++;
     }
+  len_global_path = global_path_index;
+  return 1;
+}
+
+int
+sys_get_parent_id(void)
+{
+  int pid = 0;
+  if (argint(0, &pid) < 0)
+    return -1;
+  return get_parent_id(pid);
+}
+
+int
+sys_get_children(void)
+{
+  int pid = 0;
+  if (argint(0, &pid) < 0)
+    return -1;
+  get_children(pid);
   return 0;
 }

@@ -496,6 +496,49 @@ kill(int pid)
   return -1;
 }
 
+int
+get_parent_id(int pid)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->pid == pid){
+      release(&ptable.lock);
+      return p->parent->pid;
+    }
+  }
+  release(&ptable.lock);
+  return 0;
+}
+
+char*
+get_children(int pid)
+{
+  struct proc *p;
+
+  //char ret[100] = "";
+  int children[100];
+  int children_idx = 0;
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->parent->pid == pid)
+    {
+      cprintf("%d\n", p->pid);
+      children[children_idx++] = p->pid;
+      //char *child_pid_string = itoa(p->pid);
+      //cprintf("shit the ret: %s\n", child_pid_string);
+      //safestrcpy(ret, child_pid_string, 100);
+    }
+  }
+  release(&ptable.lock);
+  for (int i = 0; i < children_idx; i++)
+    get_children(children[i]);
+  return 0;
+  //return safestrcpy(ret, "", 100);
+}
+
 //PAGEBREAK: 36
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.

@@ -15,4 +15,5 @@ int main(int argc, char *argv[])
         else
             printf(1, "New path set successfully.\n");
     }
+    exit();
 }

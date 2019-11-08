@@ -3,10 +3,35 @@
 #include "fcntl.h"
 #include "user.h"
 
+void itoaprint(int n) {
+  char ret[100];
+  if (n == 0)
+    printf(1, "0");
+
+  int idx = 0;
+  while(n > 0){
+    ret[idx++] = (n % 10) + '0';
+    n /= 10;
+  }
+
+  for (int i = 0; i < idx / 2; i++)
+  {
+    char tmp = ret[i];
+    ret[i] = ret[idx - i - 1];
+    ret[idx - i - 1] = tmp;
+  }
+  
+  ret[idx] = '\n';
+  ret[idx+1] = '\0';
+  printf(1, ret);
+}
+
 int main(int argc, char *argv[]) 
 {
     printf(1, "What system call do you like to test ? \n");
     printf(1, "0. count_num_of_digitst\n");
+    printf(1, "1. test get parent id\n");
+    printf(1, "2. test get childern\n");
     // printf(1, "0.enable/disable\n");
     // printf(1, "1.invoked_syscalls\n");
     // printf(1, "2.get_count\n");
@@ -31,41 +56,24 @@ int main(int argc, char *argv[])
     }
     else if (atoi(buf) == 1)
     {
-        printf(1, "enter directory to add to path:\n");
-        read(0, buf, 1024);
-
+        int child_pid = fork();
+        if (child_pid != 0){
+            itoaprint(get_parent_id(child_pid));
+            itoaprint(getpid());
+        }
+        wait();
     }
-    // else if(atoi(buf) == 1)
-    // {
-    //     printf(1, "enter pid : \n");
-    //     read(1, buf, 1024);
-    //     int pid = atoi(buf);
-    //     invoked_syscalls(pid);
-    // }
-    // else if(atoi(buf) == 2)
-    // {
-    //     printf(1, "enter pid : \n");
-    //     read(1, buf, 1024);
-    //     int pid = atoi(buf);
-    //     printf(1, "enter syscall number : \n");
-    //     read(1, buf, 1024);
-    //     int sysNum = atoi(buf);
-    //     get_count(pid, sysNum);
-    // }
-    // else if(atoi(buf) == 3)
-    // {
-    //     printf(1, "enter pid : \n");
-    //     read(1, buf, 1024);
-    //     int pid = atoi(buf);
-    //     sort_syscalls(pid);
-    //     //invoked_syscalls(pid);
-    // }
-    // else if(atoi(buf) == 4)
-    // {
-    //     log_syscalls();
-    // }
-    // else if(atoi(buf) == 5)
-    // {     
-    // }
+    else if (atoi(buf) == 2)
+    {
+      int child1_pid = fork();
+      if (child1_pid != 0){
+        printf(1, "current process id:");
+        itoaprint(getpid());
+        get_children(getpid());
+        printf(1, "children of 1\n");
+        get_children(1);
+        wait();
+      }
+    }
     exit();
 }

@@ -58,3 +58,4 @@ struct proc {
 //   expandable heap
 
 char globalPath[10][1000];
+int len_global_path;
