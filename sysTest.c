@@ -2,6 +2,7 @@
 #include "stat.h"
 #include "fcntl.h"
 #include "user.h"
+#include "date.h"
 
 void itoaprint(int n) {
   char ret[100];
@@ -78,7 +79,17 @@ int main(int argc, char *argv[])
     }
     else if (atoi(buf) == 3)
     {
-      set_sleep(3);
+      printf(1, "Enter sleep time: ");
+      read(0, buf, strlen(buf));
+
+      struct rtcdate beginDate, endDate;
+      fill_date(&beginDate);
+      set_sleep(atoi(buf));
+      fill_date(&endDate);
+
+      printf(1, "Entered sleep time: %s", buf);
+      printf(1, "Calculated sleep time: ");
+      itoaprint(endDate.second - beginDate.second);
     }
     exit();
 }
