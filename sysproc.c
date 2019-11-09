@@ -142,7 +142,7 @@ sys_get_children(void)
 
   if (argint(0, &pid) < 0)
     return -1;
-  else if(argptr(1, (void*)&buf, sizeof(*buf)) < 0)
+  else if(argstr(1, (void*)&buf) < 0)
     return -1;
   else if(argint(2, &bufSize) < 0)
     return -1;
