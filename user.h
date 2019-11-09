@@ -28,6 +28,7 @@ int uptime(void);
 int set_path(char*);
 int get_parent_id(int);
 int get_children(int, char*, int);
+int get_posteriors(int, char*, int);
 int set_sleep(int);
 int fill_date(struct rtcdate*);
 

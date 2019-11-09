@@ -30,17 +30,11 @@ void itoaprint(int n) {
 int main(int argc, char *argv[]) 
 {
     printf(1, "What system call do you like to test ? \n");
-    printf(1, "0. count_num_of_digitst\n");
+    printf(1, "0. test count num of digits\n");
     printf(1, "1. test get parent id\n");
     printf(1, "2. test get childern\n");
-    printf(1, "3. test sleep\n");
-    // printf(1, "0.enable/disable\n");
-    // printf(1, "1.invoked_syscalls\n");
-    // printf(1, "2.get_count\n");
-    // printf(1 ,"3.sort_syscalls\n");
-    // printf(1, "4.log_syscalls\n");
-    // printf(1, "5.inc_num\n");
-  
+    printf(1, "3. test get posteriors\n");
+    printf(1, "4. test sleep\n");
 
     char buf[1024];
     read(0, buf, 1024);
@@ -74,13 +68,26 @@ int main(int argc, char *argv[])
       if (child1_pid != 0){
         printf(1, "Current process id:");
         itoaprint(getpid());
-        // get_children(getpid(), &ans, 100);
         get_children(1, ans, 100);
         printf(1, "children of 1: %s\n", ans);
         wait();
       }
     }
     else if (atoi(buf) == 3)
+    {
+      char ans[100];
+      strcpy(ans, "");
+
+      int child1_pid = fork();
+      if (child1_pid != 0){
+        printf(1, "Current process id:");
+        itoaprint(getpid());
+        get_posteriors(1, ans, 100);
+        printf(1, "posteriors of 1: %s\n", ans);
+        wait();
+      }
+    }
+    else if (atoi(buf) == 4)
     {
       printf(1, "Enter sleep time: ");
       read(0, buf, strlen(buf));

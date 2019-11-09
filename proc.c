@@ -517,6 +517,30 @@ get_children(int pid, char* buf, int bufSize)
 {
   struct proc *p;
 
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->parent->pid == pid)
+    {
+      int endIndex = 0;
+      while(endIndex < bufSize && buf[endIndex] != '\0')
+        endIndex++;
+
+      if(endIndex > bufSize - 2)
+        exit();
+      
+      buf[endIndex] = (p->pid + '0');
+      buf[endIndex + 1] = '\0';
+    }
+  }
+  release(&ptable.lock);
+  return 0;
+}
+
+int
+get_posteriors(int pid, char* buf, int bufSize)
+{
+  struct proc *p;
+
   int children[100];
   int children_idx = 0;
 
@@ -540,7 +564,7 @@ get_children(int pid, char* buf, int bufSize)
   release(&ptable.lock);
 
   for (int i = 0; i < children_idx; i++)
-    get_children(children[i], buf, bufSize);
+    get_posteriors(children[i], buf, bufSize);
 
   return 0;
 }
