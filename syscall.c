@@ -110,6 +110,7 @@ extern int sys_set_path(void);
 extern int sys_get_parent_id(void);
 extern int sys_get_children(void);
 extern int sys_set_sleep(void);
+extern int sys_fill_date(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]                 sys_fork,
@@ -139,6 +140,7 @@ static int (*syscalls[])(void) = {
 [SYS_get_parent_id]        sys_get_parent_id,
 [SYS_get_children]         sys_get_children,
 [SYS_set_sleep]            sys_set_sleep,
+[SYS_fill_date]         sys_fill_date,
 };
 
 void

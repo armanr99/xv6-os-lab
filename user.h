@@ -29,6 +29,7 @@ int set_path(char*);
 int get_parent_id(int);
 char* get_children(int);
 int set_sleep(int);
+int fill_date(struct rtcdate*);
 
 // ulib.c
 int stat(const char*, struct stat*);

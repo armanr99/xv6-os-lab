@@ -154,3 +154,14 @@ sys_set_sleep(void)
   set_sleep(n);
   return 0;
 }
+
+int 
+sys_fill_date(void)
+{
+  struct rtcdate *r;
+  if(argptr(0, (void*)&r, sizeof(*r)) < 0)
+    return -1;
+
+  cmostime(r);
+  return 0;
+}

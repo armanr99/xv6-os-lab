@@ -27,3 +27,4 @@
 #define SYS_get_parent_id       24
 #define SYS_get_children        25
 #define SYS_set_sleep           26
+#define SYS_fill_date        27

@@ -123,6 +123,7 @@ void            yield(void);
 int             get_parent_id(int);
 char*           get_children(int);
 int             set_sleep(int);
+int             fill_date(struct rtcdate *r);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
