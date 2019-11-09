@@ -67,13 +67,16 @@ int main(int argc, char *argv[])
     }
     else if (atoi(buf) == 2)
     {
+      char ans[100];
+      strcpy(ans, "");
+
       int child1_pid = fork();
       if (child1_pid != 0){
-        printf(1, "current process id:");
+        printf(1, "Current process id:");
         itoaprint(getpid());
-        get_children(getpid());
-        printf(1, "children of 1\n");
-        get_children(1);
+        // get_children(getpid(), &ans, 100);
+        get_children(1, ans, 100);
+        printf(1, "children of 1: %s\n", ans);
         wait();
       }
     }

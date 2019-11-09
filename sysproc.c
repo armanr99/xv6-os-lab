@@ -137,9 +137,17 @@ int
 sys_get_children(void)
 {
   int pid = 0;
+  char* buf;
+  int bufSize = 0;
+
   if (argint(0, &pid) < 0)
     return -1;
-  get_children(pid);
+  else if(argptr(1, (void*)&buf, sizeof(*buf)) < 0)
+    return -1;
+  else if(argint(2, &bufSize) < 0)
+    return -1;
+
+  get_children(pid, buf, bufSize);
   return 0;
 }
 

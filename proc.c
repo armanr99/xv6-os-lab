@@ -512,12 +512,11 @@ get_parent_id(int pid)
   return 0;
 }
 
-char*
-get_children(int pid)
+int
+get_children(int pid, char* buf, int bufSize)
 {
   struct proc *p;
 
-  //char ret[100] = "";
   int children[100];
   int children_idx = 0;
 
@@ -525,18 +524,25 @@ get_children(int pid)
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
     if(p->parent->pid == pid)
     {
-      cprintf("%d\n", p->pid);
+      int endIndex = 0;
+      while(endIndex < bufSize && buf[endIndex] != '\0')
+        endIndex++;
+
+      if(endIndex > bufSize - 2)
+        exit();
+      
+      buf[endIndex] = (p->pid + '0');
+      buf[endIndex + 1] = '\0';
+
       children[children_idx++] = p->pid;
-      //char *child_pid_string = itoa(p->pid);
-      //cprintf("shit the ret: %s\n", child_pid_string);
-      //safestrcpy(ret, child_pid_string, 100);
     }
   }
   release(&ptable.lock);
+
   for (int i = 0; i < children_idx; i++)
-    get_children(children[i]);
+    get_children(children[i], buf, bufSize);
+
   return 0;
-  //return safestrcpy(ret, "", 100);
 }
 
 int 

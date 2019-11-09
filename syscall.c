@@ -140,7 +140,7 @@ static int (*syscalls[])(void) = {
 [SYS_get_parent_id]        sys_get_parent_id,
 [SYS_get_children]         sys_get_children,
 [SYS_set_sleep]            sys_set_sleep,
-[SYS_fill_date]         sys_fill_date,
+[SYS_fill_date]            sys_fill_date,
 };
 
 void
