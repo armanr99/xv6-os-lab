@@ -20,3 +20,12 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+
+//2
+#define SYS_count_num_of_digits 22
+#define SYS_set_path            23
+#define SYS_get_parent_id       24
+#define SYS_get_children        25
+#define SYS_get_posteriors      26
+#define SYS_set_sleep           27
+#define SYS_fill_date           28

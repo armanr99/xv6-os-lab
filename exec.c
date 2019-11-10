@@ -8,7 +8,7 @@
 #include "elf.h"
 
 int
-exec(char *path, char **argv)
+exec_path(char *path, char **argv)
 {
   char *s, *last;
   int i, off;
@@ -23,7 +23,7 @@ exec(char *path, char **argv)
 
   if((ip = namei(path)) == 0){
     end_op();
-    cprintf("exec: fail\n");
+    //cprintf("exec: fail\n");
     return -1;
   }
   ilock(ip);
@@ -111,4 +111,25 @@ exec(char *path, char **argv)
     end_op();
   }
   return -1;
+}
+
+int
+exec(char *path, char **argv)
+{
+  int normal_exec_ret_val = exec_path(path, argv);
+  if(normal_exec_ret_val < 0)
+    for (int i = 0; i < global_path_len; i++){
+
+      char new_path[1000];
+      for (int j = 0; j < strlen(global_path[i]); j++)
+        new_path[i] = global_path[i][j];
+      for (int j = 0; j < strlen(path); j++)
+        new_path[strlen(global_path[i]) + j] = path[j];
+      new_path[strlen(global_path[i]) + strlen(path)] = '\0';
+
+      int sys_path_exec_ret_val = exec_path( new_path, argv );
+      if (sys_path_exec_ret_val >= 0)
+        return sys_path_exec_ret_val;
+    }
+  return normal_exec_ret_val; 
 }

@@ -120,6 +120,11 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+int             get_parent_id(void);
+int             get_children(int, char*, int);
+int             get_posteriors(int, char*, int);
+int             set_sleep(int);
+int             fill_date(struct rtcdate *r);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
@@ -147,6 +152,7 @@ char*           safestrcpy(char*, const char*, int);
 int             strlen(const char*);
 int             strncmp(const char*, const char*, uint);
 char*           strncpy(char*, const char*, int);
+char*           itoa(int);
 
 // syscall.c
 int             argint(int, int*);

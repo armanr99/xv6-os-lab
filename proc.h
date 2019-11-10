@@ -56,3 +56,6 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+
+char global_path[10][1000];
+int global_path_len;

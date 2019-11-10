@@ -24,9 +24,17 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 
+//2
+int set_path(char*);
+int get_parent_id();
+int get_children(int, char*, int);
+int get_posteriors(int, char*, int);
+int set_sleep(int);
+int fill_date(struct rtcdate*);
+
 // ulib.c
 int stat(const char*, struct stat*);
-char* strcpy(char*, const char*);
+char* strcpy(char*, const char*);   
 void *memmove(void*, const void*, int);
 char* strchr(const char*, char c);
 int strcmp(const char*, const char*);

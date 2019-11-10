@@ -496,6 +496,83 @@ kill(int pid)
   return -1;
 }
 
+int
+get_parent_id(void)
+{
+  struct proc *curproc = myproc();
+  return curproc->parent->pid;
+}
+
+int
+get_children(int pid, char* buf, int buf_size)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->parent->pid == pid)
+    {
+      int endIndex = 0;
+      while(endIndex < buf_size && buf[endIndex] != '\0')
+        endIndex++;
+
+      if(endIndex > buf_size - 2)
+        exit();
+      
+      buf[endIndex] = (p->pid + '0');
+      buf[endIndex + 1] = '\0';
+    }
+  }
+  release(&ptable.lock);
+  return 0;
+}
+
+int
+get_posteriors(int pid, char* buf, int buf_size)
+{
+  struct proc *p;
+
+  int children[100];
+  int children_idx = 0;
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->parent->pid == pid)
+    {
+      int endIndex = 0;
+      while(endIndex < buf_size && buf[endIndex] != '\0')
+        endIndex++;
+
+      if(endIndex > buf_size - 2)
+        exit();
+      
+      buf[endIndex] = (p->pid + '0');
+      buf[endIndex + 1] = '\0';
+
+      children[children_idx++] = p->pid;
+    }
+  }
+  release(&ptable.lock);
+
+  for (int i = 0; i < children_idx; i++)
+    get_posteriors(children[i], buf, buf_size);
+
+  return 0;
+}
+
+int 
+set_sleep(int n)
+{
+
+  uint ticks0;
+  ticks0 = ticks;
+
+  while(ticks - ticks0 < n * 100)
+      sti();
+  
+  return 0;
+}
+
 //PAGEBREAK: 36
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.
