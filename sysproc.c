@@ -128,10 +128,7 @@ sys_set_path(void)
 int
 sys_get_parent_id(void)
 {
-  int pid = 0;
-  if (argint(0, &pid) < 0)
-    return -1;
-  return get_parent_id(pid);
+  return get_parent_id();
 }
 
 int

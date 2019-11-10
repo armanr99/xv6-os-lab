@@ -29,13 +29,13 @@ int main(int argc, char *argv[])
     }
     else if (atoi(buf) == 1)
     {
-      int child_pid = fork();
-      if (child_pid != 0)
+      if (fork() > 0)
       {
-        printf(1, "parent pid with getpid(): %d\n", getpid());
-        printf(1, "parent pid with get_parent_id(child_pid): %d\n", get_parent_id(child_pid));
+        printf(1, "Parent: pid: %d\n", getpid());
         wait();
       }
+      else
+        printf(1, "Child: parent pid: %d\n", get_parent_id());
     }
     else if (atoi(buf) == 2)
     {

@@ -26,7 +26,7 @@ int uptime(void);
 
 //2
 int set_path(char*);
-int get_parent_id(int);
+int get_parent_id();
 int get_children(int, char*, int);
 int get_posteriors(int, char*, int);
 int set_sleep(int);

@@ -497,9 +497,11 @@ kill(int pid)
 }
 
 int
-get_parent_id(int pid)
+get_parent_id(void)
 {
   struct proc *p;
+  struct proc *curproc = myproc();
+  int pid = curproc->pid;
 
   acquire(&ptable.lock);
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
