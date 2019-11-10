@@ -420,14 +420,14 @@ sys_exec(void)
   
   int normal_exec_ret_val = exec(path, argv);
   if(normal_exec_ret_val < 0)
-    for (int i = 0; i < len_global_path; i++){
+    for (int i = 0; i < global_path_len; i++){
 
       char new_path[1000];
-      for (int j = 0; j < strlen(globalPath[i]); j++)
-        new_path[i] = globalPath[i][j];
+      for (int j = 0; j < strlen(global_path[i]); j++)
+        new_path[i] = global_path[i][j];
       for (int j = 0; j < strlen(path); j++)
-        new_path[strlen(globalPath[i]) + j] = path[j];
-      new_path[strlen(globalPath[i]) + strlen(path)] = '\0';
+        new_path[strlen(global_path[i]) + j] = path[j];
+      new_path[strlen(global_path[i]) + strlen(path)] = '\0';
 
       int sys_path_exec_ret_val = exec( new_path, argv );
       if (sys_path_exec_ret_val >= 0)

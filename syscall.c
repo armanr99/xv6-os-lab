@@ -135,7 +135,6 @@ static int (*syscalls[])(void) = {
 [SYS_link]                 sys_link,
 [SYS_mkdir]                sys_mkdir,
 [SYS_close]                sys_close,
-
 [SYS_count_num_of_digits]  sys_count_num_of_digits,
 [SYS_set_path]             sys_set_path,
 [SYS_get_parent_id]        sys_get_parent_id,

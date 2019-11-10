@@ -113,14 +113,15 @@ sys_set_path(void)
   for (int i = 0; i < new_path_len; i++)
     if (new_path[i] != ':')
       new_directory[new_dir_index++] =  new_path[i];
-    else{
+    else
+    {
       new_directory[new_dir_index] = '\0';
       for (int i = 0; i <= new_dir_index; i++)
-        globalPath[global_path_index][i] = new_directory[i];
+        global_path[global_path_index][i] = new_directory[i];
       new_dir_index = 0;
       global_path_index++;
     }
-  len_global_path = global_path_index;
+  global_path_len = global_path_index;
   return 1;
 }
 
