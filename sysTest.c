@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
       int child1_pid = fork();
       if (child1_pid != 0){
         printf(1, "Current process id: %d\n", getpid());
-        get_children(1, ans, 100);
-        printf(1, "children of 1: %s\n", ans);
+        get_children(getpid(), ans, 100);
+        printf(1, "children of %d: %s\n", getpid(), ans);
         wait();
       }
     }
