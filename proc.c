@@ -499,23 +499,12 @@ kill(int pid)
 int
 get_parent_id(void)
 {
-  struct proc *p;
   struct proc *curproc = myproc();
-  int pid = curproc->pid;
-
-  acquire(&ptable.lock);
-  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-    if(p->pid == pid){
-      release(&ptable.lock);
-      return p->parent->pid;
-    }
-  }
-  release(&ptable.lock);
-  return 0;
+  return curproc->parent->pid;
 }
 
 int
-get_children(int pid, char* buf, int bufSize)
+get_children(int pid, char* buf, int buf_size)
 {
   struct proc *p;
 
@@ -524,10 +513,10 @@ get_children(int pid, char* buf, int bufSize)
     if(p->parent->pid == pid)
     {
       int endIndex = 0;
-      while(endIndex < bufSize && buf[endIndex] != '\0')
+      while(endIndex < buf_size && buf[endIndex] != '\0')
         endIndex++;
 
-      if(endIndex > bufSize - 2)
+      if(endIndex > buf_size - 2)
         exit();
       
       buf[endIndex] = (p->pid + '0');
@@ -539,7 +528,7 @@ get_children(int pid, char* buf, int bufSize)
 }
 
 int
-get_posteriors(int pid, char* buf, int bufSize)
+get_posteriors(int pid, char* buf, int buf_size)
 {
   struct proc *p;
 
@@ -551,10 +540,10 @@ get_posteriors(int pid, char* buf, int bufSize)
     if(p->parent->pid == pid)
     {
       int endIndex = 0;
-      while(endIndex < bufSize && buf[endIndex] != '\0')
+      while(endIndex < buf_size && buf[endIndex] != '\0')
         endIndex++;
 
-      if(endIndex > bufSize - 2)
+      if(endIndex > buf_size - 2)
         exit();
       
       buf[endIndex] = (p->pid + '0');
@@ -566,7 +555,7 @@ get_posteriors(int pid, char* buf, int bufSize)
   release(&ptable.lock);
 
   for (int i = 0; i < children_idx; i++)
-    get_posteriors(children[i], buf, bufSize);
+    get_posteriors(children[i], buf, buf_size);
 
   return 0;
 }

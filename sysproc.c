@@ -136,16 +136,16 @@ sys_get_children(void)
 {
   int pid = 0;
   char* buf;
-  int bufSize = 0;
+  int buf_size = 0;
 
   if (argint(0, &pid) < 0)
     return -1;
   else if(argstr(1, (void*)&buf) < 0)
     return -1;
-  else if(argint(2, &bufSize) < 0)
+  else if(argint(2, &buf_size) < 0)
     return -1;
 
-  get_children(pid, buf, bufSize);
+  get_children(pid, buf, buf_size);
   return 0;
 }
 
@@ -154,16 +154,16 @@ sys_get_posteriors(void)
 {
   int pid = 0;
   char* buf;
-  int bufSize = 0;
+  int buf_size = 0;
 
   if (argint(0, &pid) < 0)
     return -1;
   else if(argstr(1, (void*)&buf) < 0)
     return -1;
-  else if(argint(2, &bufSize) < 0)
+  else if(argint(2, &buf_size) < 0)
     return -1;
 
-  get_posteriors(pid, buf, bufSize);
+  get_posteriors(pid, buf, buf_size);
   return 0;
 }
 
