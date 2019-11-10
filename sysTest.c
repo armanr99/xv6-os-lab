@@ -4,29 +4,6 @@
 #include "user.h"
 #include "date.h"
 
-void itoaprint(int n) {
-  char ret[100];
-  if (n == 0)
-    printf(1, "0");
-
-  int idx = 0;
-  while(n > 0){
-    ret[idx++] = (n % 10) + '0';
-    n /= 10;
-  }
-
-  for (int i = 0; i < idx / 2; i++)
-  {
-    char tmp = ret[i];
-    ret[i] = ret[idx - i - 1];
-    ret[idx - i - 1] = tmp;
-  }
-  
-  ret[idx] = '\n';
-  ret[idx+1] = '\0';
-  printf(1, ret);
-}
-
 int main(int argc, char *argv[]) 
 {
     printf(1, "What system call do you like to test ? \n");
@@ -52,12 +29,13 @@ int main(int argc, char *argv[])
     }
     else if (atoi(buf) == 1)
     {
-        int child_pid = fork();
-        if (child_pid != 0){
-            itoaprint(get_parent_id(child_pid));
-            itoaprint(getpid());
-        }
+      int child_pid = fork();
+      if (child_pid != 0)
+      {
+        printf(1, "parent pid with getpid(): %d\n", getpid());
+        printf(1, "parent pid with get_parent_id(child_pid): %d\n", get_parent_id(child_pid));
         wait();
+      }
     }
     else if (atoi(buf) == 2)
     {
@@ -66,8 +44,7 @@ int main(int argc, char *argv[])
 
       int child1_pid = fork();
       if (child1_pid != 0){
-        printf(1, "Current process id:");
-        itoaprint(getpid());
+        printf(1, "Current process id: %d\n", getpid());
         get_children(1, ans, 100);
         printf(1, "children of 1: %s\n", ans);
         wait();
@@ -80,8 +57,7 @@ int main(int argc, char *argv[])
 
       int child1_pid = fork();
       if (child1_pid != 0){
-        printf(1, "Current process id:");
-        itoaprint(getpid());
+        printf(1, "Current process id: %d\n", getpid());
         get_posteriors(1, ans, 100);
         printf(1, "posteriors of 1: %s\n", ans);
         wait();
@@ -97,9 +73,9 @@ int main(int argc, char *argv[])
       set_sleep(atoi(buf));
       fill_date(&endDate);
 
+      int timeDiff = endDate.minute * 60 + endDate.second - beginDate.minute * 60 - beginDate.second;
       printf(1, "Entered sleep time: %s", buf);
-      printf(1, "Calculated sleep time: ");
-      itoaprint(endDate.second - beginDate.second);
+      printf(1, "Calculated sleep time: %d\n", timeDiff);
     }
     exit();
 }
