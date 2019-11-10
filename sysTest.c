@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[]) 
 {
-    printf(1, "What system call do you like to test ? \n");
+    printf(1, "What system call do you like to test? \n");
     printf(1, "0. test count num of digits\n");
     printf(1, "1. test get parent id\n");
     printf(1, "2. test get childern\n");
@@ -22,10 +22,10 @@ int main(int argc, char *argv[])
         int number = atoi(buf);
         int backup;
         __asm__("movl %%edx, %0" : "=r" (backup));
-        __asm__("movl %0, %%edx" :  : "r"(number) );
+        __asm__("movl %0, %%edx" :  : "r"(number));
         __asm__("movl $22 , %eax;");
         __asm__("int $64");
-        __asm__("movl %0, %%edx" :  : "r"(backup) );
+        __asm__("movl %0, %%edx" :  : "r"(backup));
     }
     else if (atoi(buf) == 1)
     {
