@@ -113,35 +113,45 @@ extern int sys_get_posteriors(void);
 extern int sys_set_sleep(void);
 extern int sys_fill_date(void);
 
+//3
+extern int sys_set_schedule_queue(void);
+extern int sys_set_lottery_ticket(void);
+extern int sys_set_srpf_remaining_priority(void);
+extern int sys_ps(void);
+
 static int (*syscalls[])(void) = {
-[SYS_fork]                 sys_fork,
-[SYS_exit]                 sys_exit,
-[SYS_wait]                 sys_wait,
-[SYS_pipe]                 sys_pipe,
-[SYS_read]                 sys_read,
-[SYS_kill]                 sys_kill,
-[SYS_exec]                 sys_exec,
-[SYS_fstat]                sys_fstat,
-[SYS_chdir]                sys_chdir,
-[SYS_dup]                  sys_dup,
-[SYS_getpid]               sys_getpid,
-[SYS_sbrk]                 sys_sbrk,
-[SYS_sleep]                sys_sleep,
-[SYS_uptime]               sys_uptime,
-[SYS_open]                 sys_open,
-[SYS_write]                sys_write,
-[SYS_mknod]                sys_mknod,
-[SYS_unlink]               sys_unlink,
-[SYS_link]                 sys_link,
-[SYS_mkdir]                sys_mkdir,
-[SYS_close]                sys_close,
-[SYS_count_num_of_digits]  sys_count_num_of_digits,
-[SYS_set_path]             sys_set_path,
-[SYS_get_parent_id]        sys_get_parent_id,
-[SYS_get_children]         sys_get_children,
-[SYS_get_posteriors]        sys_get_posteriors,
-[SYS_set_sleep]            sys_set_sleep,
-[SYS_fill_date]            sys_fill_date,
+[SYS_fork]                        sys_fork,
+[SYS_exit]                        sys_exit,
+[SYS_wait]                        sys_wait,
+[SYS_pipe]                        sys_pipe,
+[SYS_read]                        sys_read,
+[SYS_kill]                        sys_kill,
+[SYS_exec]                        sys_exec,
+[SYS_fstat]                       sys_fstat,
+[SYS_chdir]                       sys_chdir,
+[SYS_dup]                         sys_dup,
+[SYS_getpid]                      sys_getpid,
+[SYS_sbrk]                        sys_sbrk,
+[SYS_sleep]                       sys_sleep,
+[SYS_uptime]                      sys_uptime,
+[SYS_open]                        sys_open,
+[SYS_write]                       sys_write,
+[SYS_mknod]                       sys_mknod,
+[SYS_unlink]                      sys_unlink,
+[SYS_link]                        sys_link,
+[SYS_mkdir]                       sys_mkdir,
+[SYS_close]                       sys_close,
+[SYS_count_num_of_digits]         sys_count_num_of_digits,
+[SYS_set_path]                    sys_set_path,
+[SYS_get_parent_id]               sys_get_parent_id,
+[SYS_get_children]                sys_get_children,
+[SYS_get_posteriors]              sys_get_posteriors,
+[SYS_set_sleep]                   sys_set_sleep,
+[SYS_fill_date]                   sys_fill_date,
+[SYS_set_schedule_queue]          sys_set_schedule_queue,
+[SYS_set_lottery_ticket]      sys_set_lottery_ticket,
+[SYS_set_srpf_remaining_priority] sys_set_srpf_remaining_priority,
+[SYS_ps]                         sys_ps,
 };
 
 void

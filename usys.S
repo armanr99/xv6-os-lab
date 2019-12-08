@@ -36,3 +36,8 @@ SYSCALL(get_children)
 SYSCALL(get_posteriors)
 SYSCALL(set_sleep)
 SYSCALL(fill_date)
+
+SYSCALL(set_lottery_ticket)
+SYSCALL(set_srpf_remaining_priority)
+SYSCALL(set_schedule_queue)
+SYSCALL(ps)

@@ -189,3 +189,41 @@ sys_fill_date(void)
   cmostime(r);
   return 0;
 }
+
+void
+sys_set_schedule_queue()
+{
+  int schedule_queue;
+  int pid;
+  argint(0, &schedule_queue);
+  argint(1, &pid);
+  set_schedule_queue(schedule_queue, pid);
+}
+
+void
+sys_set_lottery_ticket()
+{
+  int lottery_ticket;
+  int pid;
+  argint(0, &lottery_ticket);
+  argint(1, &pid);
+  set_lottery_ticket(lottery_ticket, pid);
+}
+
+void
+sys_set_srpf_remaining_priority()
+{
+  int remaining_priority;
+  int num_of_decimal;
+  int pid;
+  argint(0, &remaining_priority);
+  argint(1, &num_of_decimal);
+  argint(2, &pid);
+  set_srpf_remaining_priority(remaining_priority, num_of_decimal, pid);
+}
+
+void
+sys_ps()
+{
+  ps();
+}

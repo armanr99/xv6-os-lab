@@ -32,6 +32,12 @@ int get_posteriors(int, char*, int);
 int set_sleep(int);
 int fill_date(struct rtcdate*);
 
+//3
+int set_lottery_ticket(int, int);
+int set_srpf_remaining_priority(int, int, int);
+int set_schedule_queue(int, int);
+void ps(void);
+
 // ulib.c
 int stat(const char*, struct stat*);
 char* strcpy(char*, const char*);   

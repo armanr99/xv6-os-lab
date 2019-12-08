@@ -29,3 +29,9 @@
 #define SYS_get_posteriors      26
 #define SYS_set_sleep           27
 #define SYS_fill_date           28
+
+//3
+#define SYS_set_schedule_queue          29
+#define SYS_set_lottery_ticket          30
+#define SYS_set_srpf_remaining_priority 31
+#define SYS_ps                          32

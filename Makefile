@@ -182,8 +182,13 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_cpt\
+	_changeLottery\
+	_changeSRPFRemainingPriority\
+	_changeQueue\
+	_schedulingTest\
 	_sysTest\
 	_set\
+	_ps\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -257,6 +262,11 @@ EXTRA=\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
 	cpt.c\
+	changeQueue.c\
+	changeLottery.c\
+	changeSRPFRemainingPriority.c\
+	schedulingTest.c\
+	ps.c\
 	sysTest.c\
 	set.c\
 

@@ -15,6 +15,7 @@ struct {
 static struct proc *initproc;
 
 int nextpid = 1;
+int createdProcessesCount = 0;
 extern void forkret(void);
 extern void trapret(void);
 
@@ -111,6 +112,12 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+  
+  p->lottery_ticket = 50;
+  p->schedule_queue = LOTTERY;
+
+  p->arrival_time = ticks + createdProcessesCount++;
+  p->executed_cycle_number = 1;
 
   return p;
 }
@@ -332,14 +339,20 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
 
+    p = schedule_lottery();
+
+    if (p == 0)
+      p = schedule_hrrn();
+    if (p == 0)
+      p = schedule_srpf();
+
+    if (p != 0) {
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
       c->proc = p;
+      c->proc->executed_cycle_number++;
       switchuvm(p);
       p->state = RUNNING;
 
@@ -350,6 +363,7 @@ scheduler(void)
       // It should have changed its p->state before coming back.
       c->proc = 0;
     }
+    
     release(&ptable.lock);
 
   }
@@ -606,6 +620,264 @@ procdump(void)
       for(i=0; i<10 && pc[i] != 0; i++)
         cprintf(" %p", pc[i]);
     }
+    cprintf("\n");
+  }
+}
+
+int get_random_number(int bound)
+{
+  int random;
+  int ticksMod = (ticks % bound);
+  random = (ticksMod * ticksMod) % bound;
+  random = (random * ticksMod) % bound;
+  random = (random + (1000000007) % bound) % bound;
+  return random;
+}
+
+struct proc*
+schedule_lottery(void) 
+{
+  struct proc *p;
+
+  int sum_lotteries = 1;
+  int random_ticket = 0;
+  struct proc *highLottery_ticket = 0;
+  
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) 
+  {
+    if(p->state == RUNNABLE && p->schedule_queue == LOTTERY)
+      sum_lotteries += p->lottery_ticket;
+  }
+  if (sum_lotteries == 1)
+    return 0;
+
+  random_ticket = get_random_number(sum_lotteries);
+  
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if(p->state == RUNNABLE && p->schedule_queue == LOTTERY)
+    {
+      random_ticket -= p->lottery_ticket;
+      if(random_ticket <= 0) {
+        highLottery_ticket = p;
+        break;
+      }
+    }
+  }
+  return highLottery_ticket;
+}
+
+
+struct proc*
+schedule_hrrn(void)
+{
+  struct proc *p;
+  struct proc *maxP = 0;
+  double maxHRRN = -1;
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) 
+  {
+    if(p->state == RUNNABLE && p->schedule_queue == HRRN)
+    {
+      int waitingTime = ticks - p->arrival_time;
+      double hrrn = (double) waitingTime / (double) p->executed_cycle_number;
+      if(hrrn > maxHRRN) 
+      {
+        maxP = p;
+        maxHRRN = hrrn;
+      }
+    }
+  }
+  
+  return maxP;
+}
+
+struct proc*
+schedule_srpf(void)
+{
+  struct proc *p;
+  struct proc *selectedP = 0;
+  double min_remaining_priority = 100000;
+
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    if(p->state == RUNNABLE && p->schedule_queue == SRPF && p->remaining_priority < min_remaining_priority)
+    {
+      min_remaining_priority = p->remaining_priority;
+      selectedP = p;
+    }
+  if (selectedP != 0 && selectedP->remaining_priority >= 0.1)
+    selectedP->remaining_priority -= 0.1;
+  return selectedP;
+}
+
+void
+set_lottery_ticket(int lottery_ticket, int pid)
+{
+  struct proc *p;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    if(p->pid == pid)
+    {
+      p->lottery_ticket = lottery_ticket;
+      break;
+    }
+}
+
+void
+set_srpf_remaining_priority(int remaining_priority, int num_of_decimal, int pid)
+{
+  double actual_remaining_priority = remaining_priority;
+  while(num_of_decimal--)
+    actual_remaining_priority /= 10.0;
+  
+  struct proc *p;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    if(p->pid == pid)
+    {
+      p->remaining_priority = actual_remaining_priority;
+      break;
+    }
+}
+
+void
+set_schedule_queue(int schedule_queue, int pid)
+{
+  struct proc *p;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    if(p->pid == pid)
+    {
+      p->schedule_queue = schedule_queue;
+      break;
+    }
+}
+
+int 
+int_size(int n)
+{
+  if(n == 0)
+    return 1;
+  
+  int ret = 0;
+  while(n > 0)
+  {
+    ret++;
+    n /= 10;
+  }
+  return ret;
+}
+
+char* 
+get_state_name(int state){
+  static char *states[] = {
+  [UNUSED]    "UNUSED  ",
+  [EMBRYO]    "EMBRYO  ",
+  [SLEEPING]  "SLEEPING",
+  [RUNNABLE]  "RUNNABLE",
+  [RUNNING]   "RUNNING ",
+  [ZOMBIE]    "ZOMBIE  "
+  };
+  return states[state];
+}
+
+char*
+get_queue_name(int schedule_queue)
+{
+  switch(schedule_queue)
+  {
+    case LOTTERY:
+      return "LOTTERY";
+    case HRRN:
+      return "HRRN   ";
+    case SRPF:
+      return "SRPF   ";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+
+void
+ps()
+{
+  struct proc *p;
+  int name_spaces = 0;
+  int i = 0 ;
+  char* state;
+  char* queue_name;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == 0)
+      continue;
+    if( name_spaces < strlen(p->name))
+      name_spaces = strlen(p->name);
+  }
+
+  cprintf("name");
+  for(i = 0; i < name_spaces - strlen("name") + 3 ; i++)
+    cprintf(" ");
+  
+  cprintf("pid");
+  for(i = 0; i < 4; i++)
+    cprintf(" ");
+  cprintf("state");
+  for(i = 0; i < 6; i++)
+    cprintf(" ");
+  cprintf("queue");
+  for(i = 0 ; i < 5; i++)
+    cprintf(" ");
+  cprintf("remaining_priority");
+  for(i = 0; i < 3; i++)
+    cprintf(" ");
+  cprintf("lottery_tickets");
+  for(i = 0; i < 3; i++)
+    cprintf(" ");
+  cprintf("execution_cycles");
+  for(i = 0; i < 3; i++)
+    cprintf(" ");
+  cprintf("HRRN");
+  for(i = 0; i < 7; i++)
+    cprintf(" ");
+  cprintf("createTime");
+  for(i = 0; i < 3; i++)
+    cprintf(" ");
+  cprintf("\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == 0)
+      continue;
+    
+    cprintf("%s", p->name);
+    for(i = 0; i < name_spaces - strlen(p->name) + 3 ; i++)
+      cprintf(" ");
+    
+    cprintf("%d", p->pid);
+    for(i = 0; i < 7 - int_size(p->pid); i++)
+      cprintf(" ");
+    
+    state = get_state_name(p->state);
+    cprintf("%s" , state);
+    for(i = 0; i < 11 - strlen(state); i++)
+      cprintf(" ");
+    
+    queue_name =  get_queue_name(p->schedule_queue);
+    cprintf("%s ", queue_name);
+    for(i = 0; i < 9 - strlen(queue_name); i++)
+      cprintf(" ");
+    // cprintf("%d", (int)(p->remaining_priority * 10));
+    cprintf("%d.%d ", (int)(p->remaining_priority * 10) / 10, (int)(p->remaining_priority * 10) % 10);
+    for(i = 0; i < 20 - int_size((int)(p->remaining_priority * 10)) - 2; i++)
+      cprintf(" ");
+    
+    cprintf("%d  ", p->lottery_ticket);
+    for(i = 0; i < 16 - int_size(p->lottery_ticket); i++)
+      cprintf(" ");
+
+    cprintf("%d ", p->executed_cycle_number);
+    for (i = 0; i < 18 - int_size(p->executed_cycle_number); i++)
+      cprintf(" ");
+
+    cprintf("%d/%d ", (ticks + createdProcessesCount - p->arrival_time), p->executed_cycle_number);
+    for (i = 0; i < 10 - int_size(ticks + createdProcessesCount - p->arrival_time) - int_size(p->executed_cycle_number) - 1; i++)
+      cprintf(" ");
+    
+    cprintf("%d  ", p->arrival_time);
     cprintf("\n");
   }
 }

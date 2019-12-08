@@ -125,6 +125,17 @@ int             get_children(int, char*, int);
 int             get_posteriors(int, char*, int);
 int             set_sleep(int);
 int             fill_date(struct rtcdate *r);
+struct proc*    schedule_lottery(void);
+struct proc*    schedule_hrrn(void);
+struct proc*    schedule_srpf(void);
+void            set_lottery_ticket(int, int);
+void            set_srpf_remaining_priority(int, int, int);
+void            set_schedule_queue(int, int);
+void            ps(void);
+
+#define LOTTERY 1
+#define HRRN 2
+#define SRPF 3
 
 // swtch.S
 void            swtch(struct context**, struct context*);
