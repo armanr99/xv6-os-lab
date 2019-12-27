@@ -10,6 +10,9 @@ struct sleeplock;
 struct stat;
 struct superblock;
 
+// Phase 4
+struct barrierlock;
+
 // bio.c
 void            binit(void);
 struct buf*     bread(uint, uint);
@@ -154,6 +157,11 @@ void            acquiresleep(struct sleeplock*);
 void            releasesleep(struct sleeplock*);
 int             holdingsleep(struct sleeplock*);
 void            initsleeplock(struct sleeplock*, char*);
+
+// barrierlock
+void            initbarrier(struct barrierlock*, int);
+void            acquirebarrier(struct barrierlock*);
+
 
 // string.c
 int             memcmp(const void*, const void*, uint);

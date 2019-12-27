@@ -17,6 +17,7 @@ OBJS = \
 	proc.o\
 	sleeplock.o\
 	spinlock.o\
+	barrier.o\
 	string.o\
 	swtch.o\
 	syscall.o\
