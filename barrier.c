@@ -21,8 +21,10 @@ initbarrier(struct barrierlock *lk, int max_processes_count)
 void
 acquirebarrier(struct barrierlock *lk)
 {
+    cprintf("PUCK\n");
     acquire(&lk->lk);
     lk->cur_processes_count++;
+    cprintf("FUCK\n");
     if (lk->cur_processes_count == lk->max_processes_count)
     {
         wakeup(lk);
