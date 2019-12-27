@@ -40,7 +40,7 @@ int set_schedule_queue(int, int);
 void ps(void);
 
 //4
-int initbarrierlock(struct barrierlock*, int);
+int initbarrierlock(int);
 int acquirebarrierlock(struct barrierlock*);
 
 // ulib.c
