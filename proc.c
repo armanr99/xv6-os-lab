@@ -911,9 +911,16 @@ initbarrierlock(struct barrierlock *nb, int max_processes_count)
 }
 
 void
-acquirebarrierlock(struct barrierlock* b)
+acquirebarrierlock(int bid)
 {
   acquire(&btable.lock);
+  struct barrierlocks *b = 0;
+  for (int i = 0; i < NBARRIERLOCK; i++)
+    if(bid == i)
+    {
+      b = &btable.barrierlocks[i];
+      break;
+    }
   acquirebarrier(b);
   release(&btable.lock);
 }
