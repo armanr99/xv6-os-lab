@@ -9,8 +9,7 @@ const int TEST_COUNT = 5;
 
 int main()
 {
-    struct barrierlock* b = 0;
-    initbarrierlock(b, TEST_COUNT + 1);
+    int bid = initbarrierlock(TEST_COUNT + 1);
     
     for(int i = 0; i < TEST_COUNT; i++)
     {
@@ -28,7 +27,7 @@ int main()
     }
     int pid = getpid();
     printf(1,"%d", pid);
-    acquirebarrierlock(b);
+    acquirebarrierlock(bid);
     printf(1,"%d", pid);
 
     exit();

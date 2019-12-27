@@ -892,22 +892,25 @@ ps()
 
 
 // Phase 4
-void
-initbarrierlock(struct barrierlock *nb, int max_processes_count)
+int
+initbarrierlock(int max_processes_count)
 {
-  acquire(&btable.lock);
-  struct barrierlock* b;
-  nb = 0;
+  int bid = 0;
 
-  for (b = btable.barrierlocks; b < &btable.barrierlocks[NBARRIERLOCK]; b++)
-    if (b->locked == 0)
+  acquire(&btable.lock);
+  
+  for(int i = 0; i < NBARRIERLOCK; i++)
+  {
+    if (btable.barrierlocks[i].locked == 0)
     {
-      nb = b;
-      initbarrier(nb, max_processes_count);
+      bid = i;
+      initbarrier(&btable.barrierlocks[i], max_processes_count);
       break;
     }
+  }
 
   release(&btable.lock);
+  return bid;
 }
 
 void

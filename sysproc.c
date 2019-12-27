@@ -238,9 +238,8 @@ sys_initbarrierlock()
   argint(1, &max_processes_count);
   if(argptr(0, (void*)&nb, sizeof(*nb)) < 0)
     return -1;
-  
-  initbarrierlock(nb, max_processes_count);
-  return 0;
+  else
+    return initbarrierlock(max_processes_count);
 }
 
 int

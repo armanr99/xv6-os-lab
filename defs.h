@@ -163,7 +163,7 @@ void            initbarrier(struct barrierlock*, int);
 void            acquirebarrier(struct barrierlock*);
 
 // barrierlock syscalls
-void                initbarrierlock(struct barrierlock*, int);
+int                 initbarrierlock(int);
 void                acquirebarrierlock(struct barrierlock*);
 
 
