@@ -41,7 +41,7 @@ void ps(void);
 
 //4
 int initbarrierlock(int);
-int acquirebarrierlock(struct barrierlock*);
+int acquirebarrierlock(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

@@ -917,7 +917,7 @@ void
 acquirebarrierlock(int bid)
 {
   acquire(&btable.lock);
-  struct barrierlocks *b = 0;
+  struct barrierlock *b = 0;
   for (int i = 0; i < NBARRIERLOCK; i++)
     if(bid == i)
     {
