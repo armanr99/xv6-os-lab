@@ -35,3 +35,7 @@
 #define SYS_set_lottery_ticket          30
 #define SYS_set_srpf_remaining_priority 31
 #define SYS_ps                          32
+
+//4
+#define SYS_initbarrierlock    33
+#define SYS_acquirebarrierlock 34

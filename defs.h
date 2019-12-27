@@ -162,6 +162,10 @@ void            initsleeplock(struct sleeplock*, char*);
 void            initbarrier(struct barrierlock*, int);
 void            acquirebarrier(struct barrierlock*);
 
+// barrierlock syscalls
+void                initbarrierlock(struct barrierlock*, int);
+void                acquirebarrierlock(struct barrierlock*);
+
 
 // string.c
 int             memcmp(const void*, const void*, uint);

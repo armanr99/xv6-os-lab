@@ -6,11 +6,18 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "barrier.h"
 
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
 } ptable;
+
+
+struct {
+  struct spinlock lock;
+  struct barrierlock barrierlocks[NBARRIERLOCK];
+} btable;
 
 static struct proc *initproc;
 
@@ -25,6 +32,7 @@ void
 pinit(void)
 {
   initlock(&ptable.lock, "ptable");
+  //initlock(&btable.lock, "btable");
 }
 
 // Must be called with interrupts disabled
@@ -880,4 +888,32 @@ ps()
     cprintf("%d  ", p->arrival_time);
     cprintf("\n");
   }
+}
+
+
+// Phase 4
+void
+initbarrierlock(struct barrierlock *nb, int max_processes_count)
+{
+  acquire(&btable.lock);
+  struct barrierlock* b;
+  nb = 0;
+
+  for (b = btable.barrierlocks; b < &btable.barrierlocks[NBARRIERLOCK]; b++)
+    if (b->locked == 0)
+    {
+      nb = b;
+      initbarrier(nb, max_processes_count);
+      break;
+    }
+
+  release(&btable.lock);
+}
+
+void
+acquirebarrierlock(struct barrierlock* b)
+{
+  acquire(&btable.lock);
+  acquirebarrier(b);
+  release(&btable.lock);
 }

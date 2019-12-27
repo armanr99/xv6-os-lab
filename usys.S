@@ -41,3 +41,6 @@ SYSCALL(set_lottery_ticket)
 SYSCALL(set_srpf_remaining_priority)
 SYSCALL(set_schedule_queue)
 SYSCALL(ps)
+
+SYSCALL(initbarrierlock)
+SYSCALL(acquirebarrierlock)

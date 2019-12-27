@@ -119,6 +119,10 @@ extern int sys_set_lottery_ticket(void);
 extern int sys_set_srpf_remaining_priority(void);
 extern int sys_ps(void);
 
+// 4
+extern int sys_initbarrierlock(void);
+extern int sys_acquirebarrierlock(void);
+
 static int (*syscalls[])(void) = {
 [SYS_fork]                        sys_fork,
 [SYS_exit]                        sys_exit,
@@ -149,9 +153,11 @@ static int (*syscalls[])(void) = {
 [SYS_set_sleep]                   sys_set_sleep,
 [SYS_fill_date]                   sys_fill_date,
 [SYS_set_schedule_queue]          sys_set_schedule_queue,
-[SYS_set_lottery_ticket]      sys_set_lottery_ticket,
+[SYS_set_lottery_ticket]          sys_set_lottery_ticket,
 [SYS_set_srpf_remaining_priority] sys_set_srpf_remaining_priority,
-[SYS_ps]                         sys_ps,
+[SYS_ps]                          sys_ps,
+[SYS_initbarrierlock]             sys_initbarrierlock,
+[SYS_acquirebarrierlock]          sys_acquirebarrierlock,
 };
 
 void

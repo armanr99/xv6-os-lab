@@ -1,5 +1,6 @@
 struct stat;
 struct rtcdate;
+struct barrierlock;
 
 // system calls
 int fork(void);
@@ -37,6 +38,10 @@ int set_lottery_ticket(int, int);
 int set_srpf_remaining_priority(int, int, int);
 int set_schedule_queue(int, int);
 void ps(void);
+
+//4
+int initbarrierlock(struct barrierlock*, int);
+int acquirebarrierlock(struct barrierlock*);
 
 // ulib.c
 int stat(const char*, struct stat*);

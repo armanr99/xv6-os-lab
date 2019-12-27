@@ -6,6 +6,8 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "spinlock.h"
+#include "barrier.h"
 
 int
 sys_fork(void)
@@ -226,4 +228,27 @@ void
 sys_ps()
 {
   ps();
+}
+
+int
+sys_initbarrierlock()
+{
+  int max_processes_count;
+  struct barrierlock* nb;
+  argint(1, &max_processes_count);
+  if(argptr(0, (void*)&nb, sizeof(*nb)) < 0)
+    return -1;
+  
+  initbarrierlock(nb, max_processes_count);
+  return 0;
+}
+
+int
+sys_acquirebarrierlock()
+{
+  struct barrierlock* b;
+  if(argptr(0, (void*)&b, sizeof(*b)) < 0)
+    return -1;
+  acquirebarrier(b);
+  return 0;
 }
