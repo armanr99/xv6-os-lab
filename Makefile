@@ -190,6 +190,7 @@ UPROGS=\
 	_sysTest\
 	_set\
 	_ps\
+	_phase4Test\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -270,6 +271,7 @@ EXTRA=\
 	ps.c\
 	sysTest.c\
 	set.c\
+	phase4Test.c\
 
 dist:
 	rm -rf dist
