@@ -32,7 +32,7 @@ void
 pinit(void)
 {
   initlock(&ptable.lock, "ptable");
-  //initlock(&btable.lock, "btable");
+  initlock(&btable.lock, "btable");
 }
 
 // Must be called with interrupts disabled
