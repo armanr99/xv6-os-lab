@@ -389,7 +389,6 @@ sched(void)
 {
   int intena;
   struct proc *p = myproc();
-
   if(!holding(&ptable.lock))
     panic("sched ptable.lock");
   if(mycpu()->ncli != 1)
@@ -574,11 +573,11 @@ get_posteriors(int pid, char* buf, int buf_size)
       children[children_idx++] = p->pid;
     }
   }
-  release(&ptable.lock);
 
   for (int i = 0; i < children_idx; i++)
     get_posteriors(children[i], buf, buf_size);
-
+  
+  release(&ptable.lock);
   return 0;
 }
 
@@ -924,6 +923,6 @@ acquirebarrierlock(int bid)
       b = &btable.barrierlocks[i];
       break;
     }
-  acquirebarrier(b);
   release(&btable.lock);
+  acquirebarrier(b);
 }

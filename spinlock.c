@@ -33,7 +33,7 @@ acquire(struct spinlock *lk)
 
 
   //pushcli(); // disable interrupts to avoid deadlock.
-  if(holding(lk))
+  if(holding(lk) && lk->owner_pid != current_pid)
     panic("acquire");
 
   // The xchg is atomic.

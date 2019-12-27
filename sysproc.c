@@ -235,7 +235,7 @@ sys_initbarrierlock()
 {
   int max_processes_count;
   struct barrierlock* nb;
-  argint(1, &max_processes_count);
+  argint(0, &max_processes_count);
   if(argptr(0, (void*)&nb, sizeof(*nb)) < 0)
     return -1;
   else
@@ -245,9 +245,8 @@ sys_initbarrierlock()
 int
 sys_acquirebarrierlock()
 {
-  struct barrierlock* b;
-  if(argptr(0, (void*)&b, sizeof(*b)) < 0)
-    return -1;
-  acquirebarrier(b);
+  int bid;
+  argint(0, &bid);
+  acquirebarrierlock(bid);
   return 0;
 }
