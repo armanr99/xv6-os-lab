@@ -7,6 +7,7 @@
 #include "proc.h"
 #include "spinlock.h"
 #include "barrier.h"
+#include "reentrantlock.h"
 
 struct {
   struct spinlock lock;
@@ -925,4 +926,21 @@ acquirebarrierlock(int bid)
     }
   release(&btable.lock);
   acquirebarrier(b);
+}
+
+
+void
+test_reentrant_lock(void)
+{
+  struct reentrantlock lock;
+  initreentrantlock(&lock, "reentrant lock");
+
+  acquire_reentrantlock(&lock);
+  cprintf("Entered lock first time\n");
+
+  acquire_reentrantlock(&lock);
+  cprintf("Entered lock second time\n");
+  
+  release_reentrantlock(&lock);
+  cprintf("Reentrant lock released\n");
 }

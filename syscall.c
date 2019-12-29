@@ -122,6 +122,7 @@ extern int sys_ps(void);
 // 4
 extern int sys_initbarrierlock(void);
 extern int sys_acquirebarrierlock(void);
+extern int sys_test_reentrant_lock(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]                        sys_fork,
@@ -158,6 +159,7 @@ static int (*syscalls[])(void) = {
 [SYS_ps]                          sys_ps,
 [SYS_initbarrierlock]             sys_initbarrierlock,
 [SYS_acquirebarrierlock]          sys_acquirebarrierlock,
+[SYS_test_reentrant_lock]         sys_test_reentrant_lock,
 };
 
 void

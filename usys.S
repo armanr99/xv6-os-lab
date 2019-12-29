@@ -44,3 +44,4 @@ SYSCALL(ps)
 
 SYSCALL(initbarrierlock)
 SYSCALL(acquirebarrierlock)
+SYSCALL(test_reentrant_lock)

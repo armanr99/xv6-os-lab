@@ -39,3 +39,4 @@
 //4
 #define SYS_initbarrierlock    33
 #define SYS_acquirebarrierlock 34
+#define SYS_test_reentrant_lock  35

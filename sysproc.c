@@ -250,3 +250,9 @@ sys_acquirebarrierlock()
   acquirebarrierlock(bid);
   return 0;
 }
+
+void
+sys_test_reentrant_lock()
+{
+  test_reentrant_lock();
+}

@@ -28,6 +28,7 @@ OBJS = \
 	uart.o\
 	vectors.o\
 	vm.o\
+	reentrantlock.o\
 
 # Cross-compiling (e.g., on Mac OS X)
 # TOOLPREFIX = i386-jos-elf
@@ -190,7 +191,8 @@ UPROGS=\
 	_sysTest\
 	_set\
 	_ps\
-	_phase4Test\
+	_barrierTest\
+	_reentrantTest\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -271,7 +273,8 @@ EXTRA=\
 	ps.c\
 	sysTest.c\
 	set.c\
-	phase4Test.c\
+	barrierTest.c\
+	reentrantTest.c\
 
 dist:
 	rm -rf dist

@@ -9,6 +9,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct reentrantlock;
 
 // Phase 4
 struct barrierlock;
@@ -152,6 +153,12 @@ void            release(struct spinlock*);
 void            pushcli(void);
 void            popcli(void);
 
+// reentrantlock.c
+void            acquire_reentrantlock(struct reentrantlock*);
+int             holding_reentrantlock(struct reentrantlock*);
+void            initreentrantlock(struct reentrantlock*, char*);
+void            release_reentrantlock(struct reentrantlock*);
+
 // sleeplock.c
 void            acquiresleep(struct sleeplock*);
 void            releasesleep(struct sleeplock*);
@@ -165,6 +172,7 @@ void            acquirebarrier(struct barrierlock*);
 // barrierlock syscalls
 int                 initbarrierlock(int);
 void                acquirebarrierlock(int);
+void                test_reentrant_lock(void);
 
 
 // string.c
