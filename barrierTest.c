@@ -16,11 +16,7 @@ int main()
         child_pid = fork();
 
         if(child_pid != 0)
-        {
-            //printf(1, "%d", child_pid);
             set_sleep(1);
-            //printf(1, "RAtteR BitCH\n");
-        }
         else
             break;
         
@@ -28,7 +24,7 @@ int main()
     int pid = getpid();
     printf(1,"locking before barrier: %d\n", pid);
     acquirebarrierlock(bid);
-    printf(1,"after barrier: %d\n", pid);
+    printf(1,"after barrier locking: %d\n", pid);
 
     if (child_pid)
         for (int i = 0; i <TEST_COUNT; i++)
