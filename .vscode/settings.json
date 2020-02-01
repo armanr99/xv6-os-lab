@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "printf.h": "c",
-        "date.h": "c",
-        "user.h": "c",
-        "reentrantlock.h": "c",
-        "barrier.h": "c"
-    }
-}
